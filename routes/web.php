@@ -17,3 +17,23 @@ Route::get('/tentang', function () {
     // ↑ return view('tentang') = Tampilkan file tentang.blade.php
     // ↑ Laravel akan mencari di: resources/views/tentang.blade.php
 });
+
+Route::get('/sapa/{nama}', function ($nama) {
+    // ↑ '/sapa/{nama}' = URL pattern
+    // ↑ {nama}         = Parameter dinamis, nilainya dari URL
+    // ↑ function($nama) = Parameter diterima di function
+
+    return "Halo, $nama! Selamat datang di Toko Online.";
+    // ↑ "$nama" = Variable interpolation (masukkan nilai $nama ke string)
+});
+
+Route::get('/kategori/{nama?}', function ($nama = 'Semua') {
+    // ↑ {nama?} = Tanda ? berarti parameter OPSIONAL
+    // ↑ $nama = 'Semua' = Nilai default jika parameter tidak diberikan
+
+    return "Menampilkan kategori: $nama";
+});
+
+Route::get('/produk/{id}', function ($id) {
+    return "Detail produk #$id";
+})->name('produk.detail');
