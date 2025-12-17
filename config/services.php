@@ -34,22 +34,6 @@ return [
             'channel' => env('SLACK_BOT_USER_DEFAULT_CHANNEL'),
         ],
     ],
-    <?php
-// ========================================
-// FILE: config/services.php
-// FUNGSI: Konfigurasi untuk layanan pihak ketiga
-// ========================================
-
-return [
-    // ================================================
-    // Konfigurasi yang sudah ada (mailgun, postmark, dll)
-    // ================================================
-
-    'mailgun' => [
-        'domain' => env('MAILGUN_DOMAIN'),
-        'secret' => env('MAILGUN_SECRET'),
-        // ...
-    ],
 
     // ... konfigurasi lainnya ...
 
@@ -72,4 +56,5 @@ return [
         'redirect' => env('GOOGLE_REDIRECT_URI'),
     ],
 ];
-];
+
+
