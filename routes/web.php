@@ -7,12 +7,36 @@
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Auth\GoogleController;
+use App\Http\Middleware\AdminMiddleware;
+use App\Http\Controllers\AdminController;
 
 // ================================================
 // ROUTE PUBLIK (Bisa diakses siapa saja)
 // ================================================
 Route::get('/', function () {
     return view('welcome');
+});
+
+Route::controller(GoogleController::class)->group(function () {
+    // ================================================
+    // ROUTE 1: REDIRECT KE GOOGLE
+    // ================================================
+    // URL: /auth/google
+    // Dipanggil saat user klik tombol "Login dengan Google"
+    // ================================================
+    Route::get('/auth/google', 'redirect')
+        ->name('auth.google');
+
+    // ================================================
+    // ROUTE 2: CALLBACK DARI GOOGLE
+    // ================================================
+    // URL: /auth/google/callback
+    // Dipanggil oleh Google setelah user klik "Allow"
+    // URL ini HARUS sama dengan yang didaftarkan di Google Console!
+    // ================================================
+    Route::get('/auth/google/callback', 'callback')
+        ->name('auth.google.callback');
 });
 // ↑ Halaman utama, tidak perlu login
 
@@ -63,7 +87,7 @@ Route::middleware('auth')->group(function () {
 // name('admin.')                = Semua nama route diawali admin.
 // ================================================
 
-Route::middleware(['auth', 'admin'])
+Route::middleware(AdminMiddleware::class)
     ->prefix('admin')
     ->name('admin.')
     ->group(function () {
