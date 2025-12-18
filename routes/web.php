@@ -100,6 +100,10 @@ Route::middleware(AdminMiddleware::class)
 
         // CRUD Produk: /admin/products, /admin/products/create, dll
         Route::resource('/products', AdminProductController::class);
+
+        // routes/web.php
+
+        
         // ↑ resource() membuat 7 route sekaligus:
         // - GET    /admin/products          → index   (admin.products.index)
         // - GET    /admin/products/create   → create  (admin.products.create)
@@ -108,6 +112,14 @@ Route::middleware(AdminMiddleware::class)
         // - GET    /admin/products/{id}/edit→ edit    (admin.products.edit)
         // - PUT    /admin/products/{id}     → update  (admin.products.update)
         // - DELETE /admin/products/{id}     → destroy (admin.products.destroy)
+
+        Route::middleware('auth')->group(function () {
+            Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+            Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+            Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+            Route::delete('/profile/avatar', [ProfileController::class, 'deleteAvatar'])->name('profile.avatar.destroy');
+            Route::put('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password.update');
+        });
 });
 
 });
