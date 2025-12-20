@@ -150,4 +150,14 @@ class ProfileController extends Controller
 
         return Redirect::to('/');
     }
+public function unlinkGoogle(Request $request)
+    {
+            $user = Auth::user();
+
+            $user->google_id = null;
+            $user->save();
+
+        return back()->with('status', 'Akun Google berhasil dilepas');
+    }
+    
 }

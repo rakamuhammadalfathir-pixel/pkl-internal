@@ -29,6 +29,7 @@ class Category extends Model
      * Method boot() dipanggil saat model di-initialize.
      * Kita gunakan untuk auto-generate slug.
      */
+    
     protected static function boot()
     {
         parent::boot();
@@ -80,6 +81,7 @@ class Category extends Model
         return $query->where('is_active', true);
     }
 
+    
     // ==================== ACCESSORS ====================
 
     /**

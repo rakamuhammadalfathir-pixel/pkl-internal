@@ -171,6 +171,28 @@ class Product extends Model
         //   ->where('is_primary', true) = filter yang gambar utama saja
     }
 
+
+     public function firstImage(): HasOne
+    {
+        return $this->hasOne(ProductImage::class)->oldestOfMany('sort_order');
+    }
+
+    public function orderItems(): HasMany
+    {
+        return $this->hasMany(OrderItem::class);
+    }
+
+    public function cartItems(): HasMany
+    {
+        return $this->hasMany(CartItem::class);
+    }
+
+    public function wishlistedBy(): HasMany
+    {
+        return $this->hasMany(Wishlist::class);
+    }
+
+
     // ================================================================
     // ACCESSORS - CUSTOM ATTRIBUTE (Computed Property)
     // ================================================================

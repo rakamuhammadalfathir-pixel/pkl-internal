@@ -144,7 +144,7 @@
 
             {{-- Flash Messages --}}
             <div class="px-4 pt-3">
-                @include('partials.flash-messages')
+                @include('profile.partials.flash-messages')
             </div>
 
             {{-- Page Content --}}

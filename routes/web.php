@@ -9,11 +9,13 @@ use App\Http\Controllers\CatalogController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\WishlistController;
-use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Middleware\AdminMiddleware;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\AdminReportController;
+use App\Http\Controllers\OrderController;
 use App\Http\Controllers\Auth\GoogleController;
+use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\ProductController as AdminProductController;
 use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
@@ -25,8 +27,22 @@ use Illuminate\Support\Facades\Route;
 // ================================================
 
 // Homepage
-Route::get('/', [HomeController::class, 'index'])->name('home');
+    Route::get('/', [HomeController::class, 'index'])->name('home');
+    Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/reports/sales', [AdminReportController::class, 'sales'])
+        ->name('reports.sales');
+});
+    Route::middleware(['auth', 'admin'])
+    ->prefix('admin')
+    ->name('admin.')
+    ->group(function () {
+        
+        
+    //user
+    Route::resource('users', UserController::class);
+});
 
+    
 // Katalog Produk
 Route::get('/products', [CatalogController::class, 'index'])->name('catalog.index');
 Route::get('/products/{slug}', [CatalogController::class, 'show'])->name('catalog.show');
@@ -54,11 +70,29 @@ Route::middleware('auth')->group(function () {
     // Pesanan Saya
     Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
     Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
+    Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
+    Route::get('/orders', [OrderController::class, 'index'])
+        ->name('admin.orders.index');
+});
+
 
     // Profil
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');   
+
+    Route::delete('/profile/avatar', [ProfileController::class, 'destroyAvatar'])
+    ->name('profile.avatar.destroy')
+    ->middleware('auth');
+
+    Route::put('/profile/password', [ProfileController::class, 'updatePassword'])
+    ->name('profile.password.update')
+    ->middleware('auth');
+
+    Route::middleware(['auth'])->group(function () {
+    Route::delete('/profile/google/unlink', [ProfileController::class, 'unlinkGoogle'])
+        ->name('profile.google.unlink');
+});
 });
 
 
@@ -82,9 +116,11 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::patch('/orders/{order}/status', [AdminOrderController::class, 'updateStatus'])->name('orders.updateStatus');
 });
 
-Route::get('/', function () {
-    return view('welcome');
-});
+// Route::get('/', function () {
+//     return view('welcome');
+// });
+
+
 
 Route::controller(GoogleController::class)->group(function () {
     // ================================================
@@ -159,10 +195,16 @@ Route::middleware(AdminMiddleware::class)
     ->prefix('admin')
     ->name('admin.')
     ->group(function () {
+        Route::get('/', function(){
+            return ;
+        });
 
+
+        
         // /admin/dashboard
         Route::get('/dashboard', [AdminController::class, 'dashboard'])
             ->name('dashboard');
+            
         // ↑ Nama lengkap route: admin.dashboard
         // ↑ URL: /admin/dashboard
 
