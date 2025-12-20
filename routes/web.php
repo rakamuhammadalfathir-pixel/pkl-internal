@@ -105,10 +105,10 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
     // Produk CRUD
-    Route::resource('products', AdminProductController::class);
+    Route::resource('products', ProductController::class);
 
     // Kategori CRUD
-    Route::resource('categories', AdminCategoryController::class);
+    Route::resource('categories', CategoryController::class)->except(['show']);
 
     // Manajemen Pesanan
     Route::get('/orders', [AdminOrderController::class, 'index'])->name('orders.index');
