@@ -158,4 +158,5 @@ class User extends Authenticatable
         // Ambil maksimal 2 huruf pertama saja
         return substr($initials, 0, 2);
     }
+    
 }
