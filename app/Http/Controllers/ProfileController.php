@@ -17,6 +17,7 @@ class ProfileController extends Controller
     /**
      * Menampilkan form edit profil.
      */
+    
     public function edit(Request $request): View
     {
         return view('profile.edit', [
@@ -65,7 +66,7 @@ class ProfileController extends Controller
      * Helper khusus untuk menangani logika upload avatar.
      * Mengembalikan string path file yang tersimpan.
      */
-    protected function uploadAvatar(ProfileUpdateRequest $request, $user): string
+    protected function uploadAvatar(Request $request, $user): string
     {
         // Hapus avatar lama (Garbage Collection)
         // Cek 1: Apakah user punya avatar sebelumnya?
@@ -84,6 +85,18 @@ class ProfileController extends Controller
 
         return $path;
     }
+
+    public function updateAvatar(Request $request)
+{
+    $user = $request->user();
+
+    $avatarPath = $this->uploadAvatar($request, $user);
+    $user->avatar = $avatarPath;
+    $user->save();
+
+    return back()->with('success', 'Foto profil berhasil diperbarui!');
+}
+
 
     /**
      * Menghapus avatar (tombol "Hapus Foto").
@@ -150,6 +163,22 @@ class ProfileController extends Controller
 
         return Redirect::to('/');
     }
+    public function destroyAvatar()
+{
+    $user = auth()->user();
+
+    // Hapus file avatar jika ada
+    if ($user->avatar) {
+        Storage::disk('public')->delete($user->avatar);
+    }
+
+    // Set kolom avatar jadi null
+    $user->update([
+        'avatar' => null,
+    ]);
+
+    return back()->with('status', 'Avatar berhasil dihapus.');
+}
 public function unlinkGoogle(Request $request)
     {
             $user = Auth::user();

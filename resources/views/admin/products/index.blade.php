@@ -1,66 +1,172 @@
-{{-- resources/views/admin/products/create.blade.php --}}
+{{-- resources/views/admin/categories/index.blade.php --}}
 @extends('layouts.admin')
 
-@section('title', 'Tambah Produk')
+@section('title', 'Manajemen Produk')
 
 @section('content')
-<div class="row justify-content-center">
-    <div class="col-lg-8">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2 class="h3 mb-0 text-gray-800">Tambah Produk Baru</h2>
-            <a href="{{ route('admin.products.index') }}" class="btn btn-outline-secondary">
-                <i class="bi bi-arrow-left"></i> Kembali
+<div class="row">
+    <div class="col-lg-12">
+        {{-- Flash Message --}}
+        @if(session('success'))
+            <div class="alert alert-success alert-dismissible fade show">
+                {{ session('success') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        @endif
+        @if(session('error'))
+            <div class="alert alert-danger alert-dismissible fade show">
+                {{ session('error') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        @endif
+
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                <h5 class="mb-0 text-primary fw-bold">Daftar Produk</h5>
+                <a href="{{ route('admin.products.create') }}" class="btn btn-sm btn-primary">
+                <i class="bi bi-plus-lg"></i> Tambah Baru
             </a>
-        </div>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="ps-4">Nama Produk</th>
+                                <th class="text-center">Kategori</th>
+                                <th class="text-center">Status</th>
+                                <th class="text-center">Harga</th>
+                                <th class="text-center">Stok</th>
+                                <th class="text-end pe-4">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse($products as $category)
+                                <tr>
+                                    <td class="ps-4">
+                                        <div class="d-flex align-items-center">
+                                            @if($category->image)
+                                                <img src="{{ Storage::url($category->image) }}" class="rounded me-2" width="40" height="40">
+                                            @else
+                                                <div class="bg-light rounded d-flex align-items-center justify-content-center me-2" style="width: 40px; height: 40px;">
+                                                    <i class="bi bi-image text-muted"></i>
+                                                </div>
+                                            @endif
+                                            <div>
+                                                <div class="fw-bold">{{ $category->name }}</div>
+                                                <small class="text-muted">{{ $category->slug }}</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge bg-info text-dark">{{ $category->category->name}}</span>
+                                    </td>
+                                    <td class="text-center">
+                                        @if($category->is_active)
+                                            <span class="badge bg-success">Aktif</span>
+                                        @else
+                                            <span class="badge bg-secondary">Non-Aktif</span>
+                                        @endif
+                                        <td class="text-center">
+                                        <span class="badge bg-info text-dark">Rp {{ number_format($category->price, 0, ',', '.') }}</span>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge bg-info text-dark">{{ $category->stock}}</span>
+                                    </td>
+                                    </td>
+                                    <td class="text-end pe-4">
+                                        <button class="btn btn-sm btn-outline-warning me-1"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#editModal{{ $category->id }}">
+                                            <i class="bi bi-pencil"></i>
+                                        </button>
+                                        <form action="{{ route('admin.products.destroy', $category) }}" method="POST" class="d-inline"
+                                              onsubmit="return confirm('Yakin hapus Produk ini?')">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-sm btn-outline-danger">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
 
-        <div class="card shadow-sm border-0">
-            <div class="card-body p-4">
-                <form action="{{ route('admin.products.store') }}" method="POST" enctype="multipart/form-data">
-                    @csrf
-
-                    {{-- Nama Produk --}}
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">Nama Produk</label>
-                        <input type="text" name="name" class="form-control @error('name') is-invalid @enderror" value="{{ old('name') }}">
-                        @error('name') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                    </div>
-
-                    {{-- Kategori Dropdown --}}
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">Kategori</label>
-                        <select name="category_id" class="form-select @error('category_id') is-invalid @enderror">
-                            <option value="">Pilih Kategori...</option>
-                            @foreach($categories as $category)
-                                <option value="{{ $category->id }}" {{ old('category_id') == $category->id ? 'selected' : '' }}>
-                                    {{ $category->name }}
-                                </option>
-                            @endforeach
-                        </select>
-                         @error('category_id') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                    </div>
-
-                    {{-- Harga & Stok --}}
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label fw-bold">Harga (Rp)</label>
-                            <input type="number" name="price" class="form-control" value="{{ old('price') }}">
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label fw-bold">Stok</label>
-                            <input type="number" name="stock" class="form-control" value="{{ old('stock') }}">
-                        </div>
-                    </div>
-
-                    {{-- Gambar --}}
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">Upload Gambar</label>
-                        <input type="file" name="images[]" multiple class="form-control">
-                    </div>
-
-                    <button type="submit" class="btn btn-primary btn-lg w-100">Simpan Produk</button>
-                </form>
+                                {{-- EDIT MODAL per Loop Item --}}
+                                <div class="modal fade" id="editModal{{ $category->id }}" tabindex="-1">
+                                    <div class="modal-dialog">
+                                        <form class="modal-content" action="{{ route('admin.products.update', $category) }}" method="POST" enctype="multipart/form-data">
+                                            @csrf
+                                            @method('PUT')
+                                            <div class="modal-header">
+                                                <h5 class="modal-title">Edit Produk</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div class="mb-3">
+                                                    <label class="form-label">Nama</label>
+                                                    <input type="text" name="name" class="form-control" value="{{ $category->name }}" required>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-label">Gambar (Opsional)</label>
+                                                    <input type="file" name="image" class="form-control">
+                                                </div>
+                                                <div class="form-check form-switch">
+                                                    <input class="form-check-input" type="checkbox" name="is_active" value="1"
+                                                           {{ $category->is_active ? 'checked' : '' }}>
+                                                    <label class="form-check-label">Aktif</label>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                                                <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            @empty
+                                <tr>
+                                    <td colspan="4" class="text-center py-4 text-muted">Belum ada kategori.</td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="card-footer bg-white">
+                {{ $products->links() }}
             </div>
         </div>
     </div>
 </div>
+
+{{-- CREATE MODAL --}}
+{{-- <div class="modal fade" id="createModal" tabindex="-1">
+    <div class="modal-dialog">
+        <form class="modal-content" action="{{ route('admin.categories.store') }}" method="POST" enctype="multipart/form-data">
+            @csrf
+            <div class="modal-header">
+                <h5 class="modal-title">Tambah Kategori Baru</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label">Nama Kategori <span class="text-danger">*</span></label>
+                    <input type="text" name="name" class="form-control" required placeholder="Misal: Elektronik">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Gambar Cover</label>
+                    <input type="file" name="image" class="form-control">
+                </div>
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" name="is_active" value="1" checked>
+                    <label class="form-check-label">Langsung Aktifkan</label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                <button type="submit" class="btn btn-primary">Simpan Kategori</button>
+            </div>
+        </form>
+    </div>
+</div> --}}
 @endsection

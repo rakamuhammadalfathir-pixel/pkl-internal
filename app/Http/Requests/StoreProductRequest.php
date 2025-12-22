@@ -39,7 +39,6 @@ class StoreProductRequest extends FormRequest
             'discount_price' => ['nullable', 'numeric', 'min:0', 'lt:price'],
 
             'stock' => ['required', 'integer', 'min:0'],
-            'weight' => ['required', 'integer', 'min:1'], // Berat minimal 1 gram
 
             'is_active' => ['boolean'],
             'is_featured' => ['boolean'],

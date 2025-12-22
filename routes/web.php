@@ -15,6 +15,7 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AdminReportController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\Auth\GoogleController;
+use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\ProductController as AdminProductController;
@@ -87,6 +88,10 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile/avatar', [ProfileController::class, 'destroyAvatar'])
     ->name('profile.avatar.destroy')
     ->middleware('auth');
+    Route::delete('/profile/avatar', [ProfileController::class, 'deleteAvatar'])
+    ->name('profile.avatar.destroy');
+
+    Route::patch('/profile/avatar', [ProfileController::class, 'updateAvatar'])->name('profile.avatar.update');
 
     Route::put('/profile/password', [ProfileController::class, 'updatePassword'])
     ->name('profile.password.update')
@@ -95,6 +100,8 @@ Route::middleware('auth')->group(function () {
     Route::middleware(['auth'])->group(function () {
     Route::delete('/profile/google/unlink', [ProfileController::class, 'unlinkGoogle'])
         ->name('profile.google.unlink');
+
+    
 });
 });
 
@@ -112,6 +119,10 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
 
     // Kategori CRUD
     Route::resource('categories', CategoryController::class)->except(['show']);
+    Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
+    Route::get('/categories', [CategoryController::class, 'index'])
+        ->name('admin.categories.index');
+});
 
     // Manajemen Pesanan
     Route::get('/orders', [AdminOrderController::class, 'index'])->name('orders.index');
