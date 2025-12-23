@@ -329,4 +329,5 @@ class Product extends Model
     {
         return $this->stock >= $quantity;
     }
+
 }

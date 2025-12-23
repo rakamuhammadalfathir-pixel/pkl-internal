@@ -24,9 +24,5 @@ class MergeCartListener
         $cartService = new \App\Services\CartService();
         $cartService->mergeCartOnLogin();
     }
-    protected $listen = [
-    Login::class => [
-        MergeCartListener::class,
-    ],
-];
+    
 }
