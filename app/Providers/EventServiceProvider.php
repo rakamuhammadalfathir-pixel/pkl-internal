@@ -11,10 +11,10 @@ class EventServiceProvider extends ServiceProvider
      * Register services.
      */
     protected $listen = [
-    Login::class => [
-        MergeCartListener::class,
-    ],
-];
+        Login::class => [
+            MergeCartListener::class,
+        ],
+    ];
 
     /**
      * Bootstrap services.

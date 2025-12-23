@@ -57,6 +57,11 @@
                         <input type="file" name="images[]" multiple class="form-control">
                     </div>
 
+                    <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" name="is_active" value="1" checked>
+                    <label class="form-check-label">Langsung Aktifkan</label>
+                    </div>
+
                     <button type="submit" class="btn btn-primary btn-lg w-100">Simpan Produk</button>
                 </form>
             </div>
