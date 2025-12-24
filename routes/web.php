@@ -66,9 +66,10 @@ Route::middleware('auth')->group(function () {
     // Wishlist
     Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist.index');
     Route::post('/wishlist/toggle/{product}', [WishlistController::class, 'toggle'])->name('wishlist.toggle');
-    Route::middleware('auth')->group(function() {
-    Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist.index');
-    Route::post('/wishlist/toggle/{product}', [WishlistController::class, 'toggle'])->name('wishlist.toggle');
+    Route::post('/wishlist/toggle/{product}', [WishlistController::class, 'toggle'])
+    ->name('wishlist.toggle')
+    ->middleware('auth');
+
 });
 
     // Checkout
@@ -107,7 +108,7 @@ Route::middleware('auth')->group(function () {
 
     
 });
-});
+
 
 
 // ================================================

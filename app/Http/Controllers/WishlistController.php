@@ -1,4 +1,5 @@
 <?php
+// app/Http/Controllers/WishlistController.php
 
 namespace App\Http\Controllers;
 
@@ -8,10 +9,11 @@ use Illuminate\Http\Request;
 class WishlistController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Menampilkan halaman daftar wishlist user.
      */
     public function index()
-    {   
+    {
+        // Ambil produk yang di-wishlist oleh user yang sedang login
         $products = auth()->user()->wishlists()
             ->with(['category', 'primaryImage']) // Eager load
             ->latest('wishlists.created_at') // Urutkan dari yang baru di-wishlist
@@ -21,53 +23,13 @@ class WishlistController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Toggle wishlist (AJAX handler).
+     * Endpoint ini akan dipanggil oleh JavaScript.
+     *
+     * Konsep Toggle:
+     * - Jika user SUDAH like -> Hapus (Unlike/Detach)
+     * - Jika user BELUM like -> Tambah (Like/Attach)
      */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
-    }
-
     public function toggle(Product $product)
     {
         $user = auth()->user();
