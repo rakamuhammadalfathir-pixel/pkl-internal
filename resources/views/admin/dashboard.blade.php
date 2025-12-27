@@ -108,7 +108,7 @@
                                                 #{{ $order->order_number }}
                                             </a>
                                         </td>
-                                        <td>{{ $order->user->name }}</td>
+                                        <td>{{ $order->user?->name }}</td>
                                         <td>Rp {{ number_format($order->total_amount, 0, ',', '.') }}</td>
                                         <td>
                                             <span class="badge bg-{{ $order->status_color }}">

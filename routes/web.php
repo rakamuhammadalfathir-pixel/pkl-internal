@@ -14,6 +14,7 @@ use App\Http\Middleware\AdminMiddleware;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AdminReportController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\PaymentController;
 // use App\Services\MidtransService;
 use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Controllers\Admin\CategoryController;
@@ -83,6 +84,11 @@ Route::middleware('auth')->group(function () {
     Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::get('/orders', [OrderController::class, 'index'])
         ->name('admin.orders.index');
+        // routes/web.php
+
+Route::get('/orders/success', [OrderController::class, 'success'])->name('orders.success');
+// Contoh jika Anda ingin membuat route tersebut
+Route::get('/orders/pending', [OrderController::class, 'pending'])->name('orders.pending');
 });
 
 
@@ -108,6 +114,18 @@ Route::middleware('auth')->group(function () {
         ->name('profile.google.unlink');
 
     
+});
+
+Route::middleware('auth')->group(function () {
+    // ... routes lainnya
+
+    // Payment Routes
+    Route::get('/orders/{order}/pay', [PaymentController::class, 'show'])
+        ->name('orders.pay');
+    Route::get('/orders/{order}/success', [PaymentController::class, 'success'])
+        ->name('orders.success');
+    Route::get('/orders/{order}/pending', [PaymentController::class, 'pending'])
+        ->name('orders.pending');
 });
 
 // Route::get('/debug-midtrans', function () {
