@@ -200,28 +200,36 @@ class MidtransNotificationController extends Controller
      * Handle pembayaran gagal/expired/cancelled.
      */
     protected function handleFailed(Order $order, ?Payment $payment, string $reason = ''): void
-    {
-        Log::info("Payment FAILED for Order: {$order->order_number}", ['reason' => $reason]);
+{
+    // Cek apakah order sudah dibatalkan sebelumnya untuk mencegah double restock
+    if ($order->status === 'cancelled') {
+        Log::info("Order {$order->order_number} already cancelled, skipping restock.");
+        return;
+    }
 
-        // Update Order
+    Log::info("Payment FAILED for Order: {$order->order_number}", ['reason' => $reason]);
+
+    // Menggunakan Database Transaction untuk memastikan integritas data
+    \DB::transaction(function () use ($order, $payment) {
+        // 1. Update Status Order
         $order->update([
             'status' => 'cancelled',
         ]);
 
-        // Update Payment
+        // 2. Update Status Payment
         if ($payment) {
             $payment->update(['status' => 'failed']);
         }
 
-        // ============================================================
-        // RESTOCK LOGIC (Kembalikan stok produk)
-        // ============================================================
+        // 3. Restock Logic (Eager Load items jika memungkinkan untuk performa)
         foreach ($order->items as $item) {
-            $item->product?->increment('stock', $item->quantity);
+            if ($item->product) {
+                $item->product->increment('stock', $item->quantity);
+                Log::info("Restocked: Product {$item->product->id} +{$item->quantity}");
+            }
         }
-
-        // TODO: Kirim email notifikasi pembayaran gagal
-    }
+    });
+}
 
     /**
      * Handle refund.

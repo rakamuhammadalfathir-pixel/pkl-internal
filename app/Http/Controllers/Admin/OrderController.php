@@ -1,68 +1,76 @@
 <?php
+// app/Http/Controllers/Admin/OrderController.php
 
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\Order;
+use Illuminate\Http\Request;
 
 class OrderController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Menampilkan daftar semua pesanan untuk admin.
+     * Dilengkapi filter by status.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $laporan = Order::all(); 
+        $orders = Order::query()
+            ->with('user') // N+1 prevention: Load data user pemilik order
+            // Fitur Filter Status (?status=pending)
+            ->when($request->status, function($q, $status) {
+                $q->where('status', $status);
+            })
+            ->latest() // Urutkan terbaru
+            ->paginate(20);
 
-        return view('admin.orders.index',  compact('laporan'));
+        return view('admin.orders.index', compact('orders'));
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Detail order untuk admin.
      */
-    public function create()
+    public function show(Order $order)
     {
-        //
+        // Load item produk dan data user
+        $order->load(['items.product', 'user']);
+        return view('admin.orders.show', compact('order'));
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Update status pesanan (misal: kirim barang)
+     * Handle otomatis pengembalian stok jika status diubah jadi Cancelled.
      */
-    public function store(Request $request)
+    public function updateStatus(Request $request, Order $order)
     {
-        //
-    }
+        // Validasi status yang dikirim form
+        $request->validate([
+            'status' => 'required|in:processing,completed,cancelled'
+        ]);
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
+        $oldStatus = $order->status;
+        $newStatus = $request->status;
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
+        // ============================================================
+        // LOGIKA RESTOCK (PENTING!)
+        // ============================================================
+        // Jika admin membatalkan pesanan, stok barang harus dikembalikan ke gudang.
+        // Syarat:
+        // 1. Status baru adalah 'cancelled'
+        // 2. Status lama BUKAN 'cancelled' (agar tidak restock 2x kalau tombol ditekan berkali-kali)
+        // ============================================================
+        if ($newStatus === 'cancelled' && $oldStatus !== 'cancelled') {
+            foreach ($order->items as $item) {
+                // increment() adalah operasi atomik (thread-safe) di level database.
+                // SQL-nya kurang lebih: UPDATE products SET stock = stock + X WHERE id = Y
+                // Ini aman dari Race Condition jika ada transaksi bersamaan.
+                $item->product->increment('stock', $item->quantity);
+            }
+        }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
+        // Update status di database
+        $order->update(['status' => $newStatus]);
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+        return back()->with('success', "Status pesanan diperbarui menjadi $newStatus");
     }
 }

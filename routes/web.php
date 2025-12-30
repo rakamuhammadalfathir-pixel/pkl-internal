@@ -85,9 +85,8 @@ Route::middleware('auth')->group(function () {
     Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::get('/orders', [OrderController::class, 'index'])
         ->name('admin.orders.index');
-    Route::middleware(['auth', 'admin'])->group(function () {
-    Route::get('/admin/orders/pending', [OrderController::class, 'pending'])->name('orders.pending');
-});
+    
+
         // routes/web.php
 
 Route::get('/orders/success', [OrderController::class, 'success'])->name('orders.success');
