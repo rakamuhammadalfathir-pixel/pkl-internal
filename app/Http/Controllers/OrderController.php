@@ -86,4 +86,18 @@ class OrderController extends Controller
 
         return view('orders.show', compact('order', 'snapToken'));
     }
+    /**
+     * Menampilkan daftar semua pesanan dengan status pending (untuk Admin).
+     */
+    public function pending()
+    {
+        // Mengambil semua order yang statusnya pending
+        // Biasanya ini digunakan di halaman Dashboard Admin
+        $orders = Order::with('user')
+            ->where('status', 'pending')
+            ->latest()
+            ->paginate(20);
+
+        return view('admin.orders.pending', compact('orders'));
+    }
 }
