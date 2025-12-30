@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo; // Tambahkan ini
 
 class Order extends Model
 {
@@ -22,6 +23,15 @@ class Order extends Model
         'shipping_cost',
         'snap_token',
     ];
+
+    /**
+     * Relasi ke User
+     * Karena di fillable ada 'user_id', maka relasi ini akan mencari ID tersebut di tabel users
+     */
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
 
     public function items()
     {
