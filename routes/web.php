@@ -12,12 +12,12 @@ use App\Http\Controllers\WishlistController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Middleware\AdminMiddleware;
 use App\Http\Controllers\AdminController;
-use App\Http\Controllers\AdminReportController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\MidtransNotificationController;
 // use App\Services\MidtransService;
 use App\Http\Controllers\Auth\GoogleController;
+use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\DashboardController;
@@ -33,8 +33,10 @@ use Illuminate\Support\Facades\Route;
 // Homepage
     Route::get('/', [HomeController::class, 'index'])->name('home');
     Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
-    Route::get('/reports/sales', [AdminReportController::class, 'sales'])
+    Route::get('/reports/sales', [ReportController::class, 'sales'])
         ->name('reports.sales');
+
+    Route::get('/reports/export-sales', [ReportController::class, 'exportSales']) ->name('reports.export-sales');
 });
     Route::middleware(['auth', 'admin'])
     ->prefix('admin')
