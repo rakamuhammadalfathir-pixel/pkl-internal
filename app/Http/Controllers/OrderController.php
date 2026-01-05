@@ -86,4 +86,10 @@ class OrderController extends Controller
 
         return view('orders.show', compact('order', 'snapToken'));
     }
+
+    public function success()
+{
+    return view('orders.success');
+}
+
 }

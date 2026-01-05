@@ -51,6 +51,9 @@ use Illuminate\Support\Facades\Route;
     Route::resource('users', UserController::class);
 });
 
+
+// Batasi 5 request per menit
+Route::post('/login', [LoginController::class, 'login'])->middleware('throttle:5,1');
     
 // Katalog Produk
 Route::get('/products', [CatalogController::class, 'index'])->name('catalog.index');
@@ -88,13 +91,15 @@ Route::middleware('auth')->group(function () {
     Route::get('/orders', [OrderController::class, 'index'])
         ->name('admin.orders.index');
     
-
+    Route::get('/user', [AdminController::class, 'index'])->name('users.index');
+    Route::delete('/user/{id}', [AdminController::class, 'destroy'])->name('users.destroy');
+});
         // routes/web.php
 
 Route::get('/orders/success', [OrderController::class, 'success'])->name('orders.success');
 // Contoh jika Anda ingin membuat route tersebut
 Route::get('/orders/pending', [OrderController::class, 'pending'])->name('orders.pending');
-});
+
 
 
     // Profil
