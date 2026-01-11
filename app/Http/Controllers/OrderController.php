@@ -87,9 +87,28 @@ class OrderController extends Controller
         return view('orders.show', compact('order', 'snapToken'));
     }
 
-    public function success()
-{
-    return view('orders.success');
-}
+    public function success(Request $request) {
+    $queryParams = $request->query();
+    $orderId = key($queryParams); 
 
+    $order = Order::where('id', $orderId)->firstOrFail();
+
+    // PAKSA UPDATE (Hanya untuk testing di localhost)
+    if ($order->status === 'pending') {
+        $order->update(['status' => 'processing']);
+    }
+
+    return view('orders.success', compact('order'));
+}   
+public function callback(Request $request) {
+    $serverKey = config('midtrans.server_key');
+    $hashed = hash("sha512", $request->order_id . $request->status_code . $request->gross_amount . $serverKey);
+    
+    if($hashed == $request->signature_key){
+        if($request->transaction_status == 'settlement'){
+            $order = Order::find($request->order_id);
+            $order->update(['status' => 'Paid']); // Mengubah status di DB
+        }
+    }
+}
 }

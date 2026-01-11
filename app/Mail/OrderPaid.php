@@ -26,6 +26,11 @@ class OrderPaid extends Mailable
     /**
      * Definisi Subjek dan Pengirim Email.
      */
+    public function build()
+    {
+        return $this->subject('Order #' . $this->order->id . ' Paid')
+                    ->markdown('emails.orders.paid');
+    }
     public function envelope(): Envelope
     {
         return new Envelope(

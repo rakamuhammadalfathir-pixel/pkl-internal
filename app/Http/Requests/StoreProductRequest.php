@@ -23,37 +23,26 @@ class StoreProductRequest extends FormRequest
     public function rules(): array
     {
         return [
-            // category_id harus ada di tabel categories kolom id
             'category_id' => ['required', 'exists:categories,id'],
-
             'name' => ['required', 'string', 'max:255'],
-            'description' => ['nullable', 'string'],
+            
+            // UBAH: dari 'nullable' menjadi 'required' agar deskripsi wajib diisi
+            'description' => ['required', 'string'], 
 
-            // Harga minimal 1000 rupiah
-            'price' => ['required', 'numeric', 'min:1000'],
+            // TAMBAH: Validasi untuk Berat (dalam gram)
+            'weight' => ['required', 'numeric', 'min:1'], 
 
-            // Harga diskon (opsional), tapi jika diisi:
-            // 1. Harus numeric
-            // 2. Minimal 0
-            // 3. Harus KURANG DARI ('lt' = less than) harga asli (price)
+            'price' => ['required', 'numeric', 'min:1'],
             'discount_price' => ['nullable', 'numeric', 'min:0', 'lt:price'],
-
             'stock' => ['required', 'integer', 'min:0'],
-
             'is_active' => ['boolean'],
             'is_featured' => ['boolean'],
 
-            // Validasi Array Gambar
-            // 'images' harus berupa array
-            // Maksimal 10 file sekaligus
             'images' => ['nullable', 'array', 'max:10'],
-
-            // Validasi TIAP item di dalam array images
-            // 'images.*' artinya "setiap file di dalam array images"
             'images.*' => [
-                'image', // Harus berupa file gambar
-                'mimes:jpg,png,webp', // Ekstensi yang diperbolehkan
-                'max:2048' // Maksimal 2MB per file (2048 KB)
+                'image',
+                'mimes:jpg,png,webp',
+                'max:2048'
             ],
         ];
     }

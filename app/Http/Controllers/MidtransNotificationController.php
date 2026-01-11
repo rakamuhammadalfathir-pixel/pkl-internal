@@ -86,7 +86,7 @@ class MidtransNotificationController extends Controller
         // Kita harus pastikan logika kita aman jika dipanggil double.
         // Jika order sudah berstatus final (processing/shipped/delivered), stop.
         // ============================================================
-        if (in_array($order->status, ['processing', 'shipped', 'delivered', 'cancelled'])) {
+        if ($order->payment_status === 'paid') {
             Log::info("Midtrans Notification: Order already processed", ['order_id' => $orderId]);
             return response()->json(['message' => 'Order already processed'], 200);
         }
@@ -171,6 +171,7 @@ class MidtransNotificationController extends Controller
         // Update Order
         $order->update([
             'status' => 'processing', // Siap diproses/dikirim
+            'payment_status' => 'paid',
         ]);
 
         // Update Payment
@@ -182,7 +183,8 @@ class MidtransNotificationController extends Controller
         }
 
         // TODO: Kirim email konfirmasi pembayaran
-        // event(new PaymentSuccessful($order));
+        $order->load('user');
+        event(new OrderPaidEvent($order));
     }
 
     /**
@@ -197,6 +199,10 @@ class MidtransNotificationController extends Controller
         if ($payment) {
             $payment->update(['status' => 'pending']);
         }
+
+        $order->update([
+            'payment_status' => 'unpaid',
+        ]);
     }
 
     /**
@@ -217,6 +223,7 @@ class MidtransNotificationController extends Controller
         // 1. Update Status Order
         $order->update([
             'status' => 'cancelled',
+            'payment_status' => 'failed',
         ]);
 
         // 2. Update Status Payment
@@ -250,7 +257,7 @@ class MidtransNotificationController extends Controller
 
     private function setSuccess(Order $order)
     {
-        $order->update(['status' => 'success']);
+        $order->update([]);
 
         // Fire & Forget
         event(new OrderPaidEvent($order));

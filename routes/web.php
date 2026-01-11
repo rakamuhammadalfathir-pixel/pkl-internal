@@ -42,16 +42,15 @@ use Illuminate\Support\Facades\Route;
     ->prefix('admin')
     ->name('admin.')
     ->group(function () {
-        
-        
-    Route::get('/catalog', [CatalogController::class, 'index'])->name('catalog.index');
-    Route::get('/product/{slug}', [CatalogController::class, 'show'])->name('catalog.show');
-
     //user
     Route::resource('users', UserController::class);
 });
 
+// Rute untuk daftar produk (Halaman Index)
+Route::get('/products', [CatalogController::class, 'index'])->name('catalog.index');
 
+// Rute untuk detail produk (Halaman Show) - TAMBAHKAN INI
+Route::get('/products/{slug}', [CatalogController::class, 'show'])->name('catalog.show');
 // Batasi 5 request per menit
 Route::post('/login', [LoginController::class, 'login'])->middleware('throttle:5,1');
     
@@ -85,23 +84,23 @@ Route::middleware('auth')->group(function () {
     Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
 
     // Pesanan Saya
-    Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
-    Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
-    Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
-    Route::get('/orders', [OrderController::class, 'index'])
-        ->name('admin.orders.index');
     
-    Route::get('/user', [AdminController::class, 'index'])->name('users.index');
-    Route::delete('/user/{id}', [AdminController::class, 'destroy'])->name('users.destroy');
+    
+    Route::middleware('auth')->group(function () {
+    Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
+    
+    // SUCCESS HARUS DI ATAS SHOW
+    Route::get('/orders/success', [OrderController::class, 'success'])->name('orders.success');
+    Route::get('/orders/pending', [OrderController::class, 'pending'])->name('orders.pending');
+    
+    Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
+    
 });
-        // routes/web.php
 
-Route::get('/orders/success', [OrderController::class, 'success'])->name('orders.success');
-// Contoh jika Anda ingin membuat route tersebut
-Route::get('/orders/pending', [OrderController::class, 'pending'])->name('orders.pending');
+    Route::get('/user', [AdminController::class, 'index'])->name('users.index');
 
 
-
+    Route::delete('/user/{id}', [AdminController::class, 'destroy'])->name('users.destroy');
     // Profil
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
@@ -126,6 +125,8 @@ Route::get('/orders/pending', [OrderController::class, 'pending'])->name('orders
     
 });
 
+
+
 Route::middleware('auth')->group(function () {
     // ... routes lainnya
 
@@ -145,9 +146,12 @@ Route::middleware('auth')->group(function () {
 // Route ini HARUS public (tanpa auth middleware)
 // Karena diakses oleh SERVER Midtrans, bukan browser user
 // ============================================================
-Route::post('midtrans/notification', [MidtransNotificationController::class, 'handle'])
-    ->name('midtrans.notification');
 
+
+Route::post('/midtrans-callback', [PaymentController::class, 'handleNotification']);
+// Contoh Route di routes/api.php
+Route::post('/midtrans-callback', [OrderController::class, 'callback']);
+  
 
 // Route::get('/debug-midtrans', function () {
 //     // Cek apakah config terbaca
@@ -344,7 +348,11 @@ Route::middleware(AdminMiddleware::class)
 });
 
 });
+
+
 // ================================================
 // AUTH ROUTES (dari Laravel UI)
 // ================================================
 Auth::routes();
+
+Route::post('midtrans/notification', [MidtransNotificationController::class, 'handle']);

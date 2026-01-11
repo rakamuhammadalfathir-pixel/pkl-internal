@@ -11,7 +11,7 @@ class UpdateProductRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,7 +22,13 @@ class UpdateProductRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+        'name' => 'required|string|max:255',
+        'description' => ['required', 'string'], // Pastikan ini ada
+        'weight' => ['required', 'numeric', 'min:1'], // Pastikan ini ada
+        'price' => 'required|numeric',
+        'category_id' => 'required|exists:categories,id',   
+        'stock' => 'required|integer|min:0',
+        // pastikan semua field input ada di sini
         ];
     }
 }

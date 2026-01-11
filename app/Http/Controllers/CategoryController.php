@@ -27,7 +27,13 @@ class CategoryController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $data = $request->all();
+        
+        // Jika checkbox tidak dicentang, set is_active menjadi 0
+        $data['is_active'] = $request->has('is_active') ? 1 : 0;
+
+        Category::create($data);
+        return redirect()->back()->with('success', 'Kategori berhasil ditambah');
     }
 
     /**
@@ -49,9 +55,15 @@ class CategoryController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, Category $category)
     {
-        //
+        $data = $request->all();
+
+        // Pastikan status diperbarui ke 0 jika tidak ada di request
+        $data['is_active'] = $request->has('is_active') ? 1 : 0;
+
+        $category->update($data);
+        return redirect()->back()->with('success', 'Kategori berhasil diubah');
     }
 
     /**

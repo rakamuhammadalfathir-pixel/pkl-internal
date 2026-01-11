@@ -50,7 +50,17 @@
                             <input type="number" name="stock" class="form-control" value="{{ old('stock') }}">
                         </div>
                     </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="weight" class="form-label">Berat (gram)</label>
+                            <input type="number" name="weight" id="weight" class="form-control" placeholder="Contoh: 1000" required>
+                        </div>
+                    </div>
 
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Deskripsi</label>
+                        <textarea name="description" id="description" rows="4" class="form-control" placeholder="Masukkan deskripsi lengkap produk..." required></textarea>
+                    </div>
                     {{-- Gambar --}}
                     <div class="mb-3">
                         <label class="form-label fw-bold">Upload Gambar</label>

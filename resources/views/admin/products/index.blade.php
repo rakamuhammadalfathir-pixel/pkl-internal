@@ -34,6 +34,7 @@
                             <tr>
                                 <th class="ps-4">Nama Produk</th>
                                 <th class="text-center">Kategori</th>
+                                <th class="text-center">Berat</th>
                                 <th class="text-center">Status</th>
                                 <th class="text-center">Harga</th>
                                 <th class="text-center">Stok</th>
@@ -41,47 +42,56 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @forelse($products as $category)
+                            @forelse($products as $product)
                                 <tr>
                                     <td class="ps-4">
                                         <div class="d-flex align-items-center">
-                                            @if($category->image)
-                                                <img src="{{ Storage::url($category->image) }}" class="rounded me-2" width="40" height="40">
+                                            @if($product->primaryImage)
+                                                <img src="{{ asset('storage/' . $product->primaryImage->image_path) }}" 
+                                                    alt="{{ $product->name }}" 
+                                                    style="width: 50px; height: 50px; object-fit: cover;">
                                             @else
-                                                <div class="bg-light rounded d-flex align-items-center justify-content-center me-2" style="width: 40px; height: 40px;">
-                                                    <i class="bi bi-image text-muted"></i>
-                                                </div>
+                                                <img src="{{ asset('images/no-image.png') }}" 
+                                                    alt="No Image" 
+                                                    style="width: 50px; height: 50px;">
                                             @endif
                                             <div>
-                                                <div class="fw-bold">{{ $category->name }}</div>
-                                                <small class="text-muted">{{ $category->slug }}</small>
+                                                <div class="fw-bold">{{ $product->name }}</div>
+                                                <small class="text-muted">{{ $product->slug }}</small>
                                             </div>
                                         </div>
                                     </td>
                                     <td class="text-center">
-                                        <span class="badge bg-info text-dark">{{ $category->category->name}}</span>
+                                        <span class="badge bg-info text-dark">{{ $product->category->name }}</span>
                                     </td>
+
+                                    {{-- TAMBAHKAN DATA BERAT --}}
                                     <td class="text-center">
-                                        @if($category->is_active)
+                                        <span class="text-muted small">{{ number_format($product->weight, 0, ',', '.') }} g</span>
+                                    </td>
+
+                                    <td class="text-center">
+                                        @if($product->is_active)
                                             <span class="badge bg-success">Aktif</span>
                                         @else
                                             <span class="badge bg-secondary">Non-Aktif</span>
                                         @endif
-                                        <td class="text-center">
-                                        <span class="badge bg-info text-dark">Rp {{ number_format($category->price, 0, ',', '.') }}</span>
                                     </td>
                                     <td class="text-center">
-                                        <span class="badge bg-info text-dark">{{ $category->stock}}</span>
+                                        <span class="fw-bold">Rp {{ number_format($product->price, 0, ',', '.') }}</span>
                                     </td>
+                                    <td class="text-center">
+                                        <span class="badge {{ $product->stock < 10 ? 'bg-danger' : 'bg-primary' }}">
+                                            {{ $product->stock }}
+                                        </span>
                                     </td>
                                     <td class="text-end pe-4">
-                                        <button class="btn btn-sm btn-outline-warning me-1"
-                                                data-bs-toggle="modal"
-                                                data-bs-target="#editModal{{ $category->id }}">
+                                        <a href="{{ route('admin.products.edit', $product->id) }}" class="btn btn-sm btn-outline-warning me-1">
                                             <i class="bi bi-pencil"></i>
-                                        </button>
-                                        <form action="{{ route('admin.products.destroy', $category) }}" method="POST" class="d-inline"
-                                              onsubmit="return confirm('Yakin hapus Produk ini?')">
+                                        </a>
+                                        
+                                        <form action="{{ route('admin.products.destroy', $product->id) }}" method="POST" class="d-inline"
+                                            onsubmit="return confirm('Yakin hapus Produk ini?')">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="btn btn-sm btn-outline-danger">
@@ -90,46 +100,13 @@
                                         </form>
                                     </td>
                                 </tr>
-
-                                {{-- EDIT MODAL per Loop Item --}}
-                                <div class="modal fade" id="editModal{{ $category->id }}" tabindex="-1">
-                                    <div class="modal-dialog">
-                                        <form class="modal-content" action="{{ route('admin.products.update', $category) }}" method="POST" enctype="multipart/form-data">
-                                            @csrf
-                                            @method('PUT')
-                                            <div class="modal-header">
-                                                <h5 class="modal-title">Edit Produk</h5>
-                                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                                            </div>
-                                            <div class="modal-body">
-                                                <div class="mb-3">
-                                                    <label class="form-label">Nama</label>
-                                                    <input type="text" name="name" class="form-control" value="{{ $category->name }}" required>
-                                                </div>
-                                                <div class="mb-3">
-                                                    <label class="form-label">Gambar (Opsional)</label>
-                                                    <input type="file" name="image" class="form-control">
-                                                </div>
-                                                <div class="form-check form-switch">
-                                                    <input class="form-check-input" type="checkbox" name="is_active" value="1"
-                                                           {{ $category->is_active ? 'checked' : '' }}>
-                                                    <label class="form-check-label">Aktif</label>
-                                                </div>
-                                            </div>
-                                            <div class="modal-footer">
-                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                                                <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
-                                            </div>
-                                        </form>
-                                    </div>
-                                </div>
                             @empty
                                 <tr>
-                                    <td colspan="4" class="text-center py-4 text-muted">Belum ada kategori.</td>
+                                    <td colspan="7" class="text-center py-4 text-muted">Belum ada produk.</td>
                                 </tr>
                             @endforelse
                         </tbody>
-                    </table>
+                    </table>    
                 </div>
             </div>
             <div class="card-footer bg-white">
@@ -139,34 +116,5 @@
     </div>
 </div>
 
-{{-- CREATE MODAL --}}
-{{-- <div class="modal fade" id="createModal" tabindex="-1">
-    <div class="modal-dialog">
-        <form class="modal-content" action="{{ route('admin.categories.store') }}" method="POST" enctype="multipart/form-data">
-            @csrf
-            <div class="modal-header">
-                <h5 class="modal-title">Tambah Kategori Baru</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <div class="mb-3">
-                    <label class="form-label">Nama Kategori <span class="text-danger">*</span></label>
-                    <input type="text" name="name" class="form-control" required placeholder="Misal: Elektronik">
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Gambar Cover</label>
-                    <input type="file" name="image" class="form-control">
-                </div>
-                <div class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" name="is_active" value="1" checked>
-                    <label class="form-check-label">Langsung Aktifkan</label>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                <button type="submit" class="btn btn-primary">Simpan Kategori</button>
-            </div>
-        </form>
-    </div>
-</div> --}}
+
 @endsection

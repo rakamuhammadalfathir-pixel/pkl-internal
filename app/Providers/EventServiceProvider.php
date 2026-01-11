@@ -14,6 +14,9 @@ class EventServiceProvider extends ServiceProvider
         Login::class => [
             MergeCartListener::class,
         ],
+        OrderPaidEvent::class => [
+            SendOrderPaidEmail::class,
+        ],
     ];
 
     /**

@@ -14,7 +14,7 @@ class SendOrderPaidEmail implements ShouldQueue // <--- PENTING
     // Retry jika gagal
     public $tries = 3;
 
-    public function handle(OrderPaidEvent $event): void
+    public function handle(OrderPaidEvent $event)
     {
         // Kirim email ke user
         Mail::to($event->order->user->email)

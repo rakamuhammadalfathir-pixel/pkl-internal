@@ -72,7 +72,7 @@ class ProductController extends Controller
             // 2. Create Product Images
             // Jika step 2 gagal (misal upload error), step 1 harus DIBATALKAN (Rollback) agar tidak ada data sampah.
             DB::beginTransaction();
-
+            
             // 1. Simpan data produk
             // $request->validated() hanya mengambil data yang lolos validasi di FormRequest.
             // Method create() memanfaatkan fitur Mass Assignment Laravel.
@@ -118,12 +118,11 @@ class ProductController extends Controller
     /**
      * Menampilkan form edit produk.
      */
-    public function edit(Product $product): View
+   public function edit(Product $product)
     {
-        $categories = Category::active()->orderBy('name')->get();
-        // Load gambar yang sudah ada agar bisa ditampilkan/dihapus di form edit.
-        $product->load('images');
+        $categories = Category::where('is_active', 1)->orderBy('name', 'asc')->get();
 
+        // Pastikan 'categories' dimasukkan ke dalam compact() atau array
         return view('admin.products.edit', compact('product', 'categories'));
     }
 
@@ -131,11 +130,12 @@ class ProductController extends Controller
      * Memperbarui data produk.
      * Juga menggunakan Transaction karena melibatkan update produk + upload/delete gambar.
      */
-    public function update(UpdateProductRequest $request, Product $product): RedirectResponse
+    public function update(UpdateProductRequest $request, $id): RedirectResponse // Ubah Product $product jadi $id
     {
         try {
             DB::beginTransaction();
 
+            $product = Product::findOrFail($id);
             // 1. Update data dasar produk
             $product->update($request->validated());
 
@@ -156,14 +156,11 @@ class ProductController extends Controller
             }
 
             DB::commit();
-
-            return redirect()
-                ->route('admin.products.index')
-                ->with('success', 'Produk berhasil diperbarui!');
+        return redirect()->route('admin.products.index')->with('success', 'Produk berhasil diperbarui!');
 
         } catch (\Exception $e) {
-            DB::rollBack();
-            return back()->withInput()->with('error', 'Gagal update: ' . $e->getMessage());
+        DB::rollBack();
+        return back()->withInput()->with('error', 'Gagal update: ' . $e->getMessage());
         }
     }
 
